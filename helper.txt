@@ -1,0 +1,6 @@
+Precedence:
++-:1
+*/:2
+^:3
+Operator Mapping:
+(These operators would never appear in normal case,so use them to refer math.h functions)
