@@ -1,6 +1,38 @@
 Precedence:
 +-:1
-*/:2
+*/:2      (fmod(%)):2
 ^:3
 Operator Mapping:
+1.Only single-parameter functions are supported.
+2(?).Numbers cannot appear in the function name.
 (These operators would never appear in normal case,so use them to refer math.h functions)
+abs(fabs) -> -1
+(The operator || refers to abs().This may be implemented later.)
+exp       -> -2
+ln(log)   -> -3
+lg(log10) -> -4
+pow :N/A(^)
+sqrt      -> -5
+cbrt      -> -6
+sin       -> -7
+cos       -> -8
+tan       -> -9
+asin      -> -10
+acos      -> -11
+atan      -> -12
+sinh      -> -13
+cosh      -> -14
+tanh      -> -15
+asinh     -> -16
+acosh     -> -17
+atanh     -> -18
+erf       -> -19
+erfc      -> -20
+tgamma    -> -21
+lgamma    -> -22
+celi      -> -23
+floor     -> -24
+trunc     -> -25
+round     -> -26
++(monocular) -> -27
+-(monocular) -> -28
