@@ -37,12 +37,12 @@ int operator_precedence(char c)
 }
 int is_num(char c)
 {
-    return (c >= '0' || c<= '9');
+    return (c >= '0' && c<= '9');
 }
 
 int is_lowercase_alpha(char c)
 {
-    return (c >= 'a' || c <= 'z');
+    return (c >= 'a' && c <= 'z');
 }
 
 typedef struct {
@@ -105,7 +105,7 @@ char function_wrapper(char* function_identifier)
         return -21;
     else if(!strcmp(function_identifier,"lgamma"))
         return -22;
-    else if(!strcmp(function_identifier,"celi"))
+    else if(!strcmp(function_identifier,"ceil"))
         return -23;
     else if(!strcmp(function_identifier,"floor"))
         return -24;
@@ -117,8 +117,75 @@ char function_wrapper(char* function_identifier)
         return 0;
 }
 
+//convert the special chars back to the function to calculate
+double function_unwrapper(char wrapped_identifier,double function_operand)
+{
+    switch (wrapped_identifier)
+    {
+    case -1:
+        return fabs(function_operand);
+    case -2:
+        return exp(function_operand);
+    case -3:
+        return log(function_operand);
+    case -4:
+        return log10(function_operand);
+    case -5:
+        return sqrt(function_operand);
+    case -6:
+        return cbrt(function_operand);
+    case -7:
+        return sin(function_operand);
+    case -8:
+        return cos(function_operand);
+    case -9:
+        return tan(function_operand);
+    case -10:
+        return asin(function_operand);
+    case -11:
+        return acos(function_operand);
+    case -12:
+        return atan(function_operand);
+    case -13:
+        return sinh(function_operand);
+    case -14:
+        return cosh(function_operand);
+    case -15:
+        return tanh(function_operand);
+    case -16:
+        return asinh(function_operand);
+    case -17:
+        return acosh(function_operand);
+    case -18:
+        return atanh(function_operand);
+    case -19:
+        return erf(function_operand);
+    case -20:
+        return erfc(function_operand);
+    case -21:
+        return tgamma(function_operand);
+    case -22:
+        return lgamma(function_operand);
+    case -23:
+        return ceil(function_operand);
+    case -24:
+        return floor(function_operand);
+    case -25:
+        return trunc(function_operand);
+    case -26:
+        return round(function_operand);
+    case -27:
+        return function_operand;
+    case -28:
+        return -function_operand;
+    default:
+        return function_operand;
+    }
+}
+
 double expr_parse(char *expr_input,int expr_length,double x)
 {
+    //make the two stacks used to convert expression
     char operator_stack[expr_length];
     memset(operator_stack,0,expr_length);
     StackItem generic_stack[expr_length];
@@ -126,10 +193,12 @@ double expr_parse(char *expr_input,int expr_length,double x)
     int operator_stack_top = -1;
     int generic_stack_top = -1;
 
+    //temp / loop variables
     StackItem temp_item;
     int i,j,prev_i;
     char prev_char = '\0';
 
+    //function-related variables
     char function_identifier[7] = {'\0'};
     int function_i;
     int function_brackets = 0;
@@ -222,6 +291,14 @@ double expr_parse(char *expr_input,int expr_length,double x)
         break;
         //functions
         case 'a' ... 'z':
+            if(*(expr_input+i) == 'x')
+            {
+                temp_item.isNum = 1;
+                temp_item.numPart = x;
+                generic_stack_top++;
+                generic_stack[generic_stack_top] = temp_item;
+                break;
+            }
         if(function_i == -1)
         {
             //Empty the string after last search.
@@ -236,30 +313,13 @@ double expr_parse(char *expr_input,int expr_length,double x)
                 function_identifier[function_i] = *(expr_input+i);
                 function_i++;
                 i++;
-            } while (!is_lowercase_alpha(*(expr_input+i)));
-        if(function_identifier[1] == '\0')
-        {
-            if(function_identifier[0] == 'x')
-                {
-                    temp_item.isNum = 1;
-                    temp_item.numPart = x;
-                    generic_stack_top++;
-                    generic_stack[generic_stack_top] = temp_item;
-                }
-            else
-            {
-                return nan("0");
-            }
-        }
-        else
-        {
+            } while (is_lowercase_alpha(*(expr_input+i)));
             function_i=-1;  //This represents "start searching for matched brackets".
             i--;
-        }
             break;
 
         case ')':
-            do
+            while (operator_stack[operator_stack_top] != '(')
             {
                 temp_item.isNum = 0;
                 temp_item.operatorPart = operator_stack[operator_stack_top];
@@ -267,7 +327,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                 operator_stack_top--;
                 generic_stack_top++;
                 generic_stack[generic_stack_top] = temp_item;
-            } while (operator_stack[operator_stack_top] != '(');
+            }
             operator_stack[operator_stack_top] = '\0';
             operator_stack_top--;
             if(function_i == -1)
@@ -339,13 +399,13 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         break;
                     }
                 }
-                else if(generic_stack[i].operatorPart = 0)
+                else if(generic_stack[i].operatorPart == 0)
                 {
                     ;
                 }
                 else
                 {
-                    calculation_stack[calculation_stack_top] = calculation_stack[calculation_stack_top];
+                    calculation_stack[calculation_stack_top].numPart = function_unwrapper(generic_stack[i].operatorPart,calculation_stack[calculation_stack_top].numPart);
                 }
             }
         }

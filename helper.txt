@@ -4,7 +4,8 @@ Precedence:
 ^:3
 Operator Mapping:
 1.Only single-parameter functions are supported.
-2(?).Numbers cannot appear in the function name.
+---2(?).Numbers cannot appear in the function name.
+3.'x' cannot appear in the function name.
 (These operators would never appear in normal case,so use them to refer math.h functions)
 abs(fabs) -> -1
 (The operator || refers to abs().This may be implemented later.)
@@ -30,7 +31,7 @@ erf       -> -19
 erfc      -> -20
 tgamma    -> -21
 lgamma    -> -22
-celi      -> -23
+ceil      -> -23
 floor     -> -24
 trunc     -> -25
 round     -> -26
