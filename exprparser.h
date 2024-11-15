@@ -334,8 +334,10 @@ double expr_parse(char *expr_input,int expr_length,double x)
                 function_brackets--;
             if(function_brackets == 0)
                 {
-                    operator_stack_top++;
-                    operator_stack[operator_stack_top] = function_wrapper(function_identifier);
+                    temp_item.isNum = 0;
+                    temp_item.operatorPart = function_wrapper(function_identifier);
+                    generic_stack_top++;
+                    generic_stack[generic_stack_top] = temp_item;
                 }
             break;
         case '\0':
