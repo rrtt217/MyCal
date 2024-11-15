@@ -51,7 +51,7 @@ typedef struct {
  double numPart;
 }StackItem;
 
-StackItem empty_item = {'0',0,0.0};
+StackItem empty_item = {'\0',0,0.0};
 
 int is_empty(StackItem item)
 {
@@ -215,7 +215,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                     operator_stack_top--;
                     generic_stack_top++;
                     generic_stack[generic_stack_top] = temp_item;
-                } while ( operator_stack_top != -1 || operator_precedence(operator_stack[operator_stack_top]) >= operator_precedence(*(expr_input+i)));
+                } while ( operator_stack_top != -1 && operator_precedence(operator_stack[operator_stack_top]) >= operator_precedence(*(expr_input+i)));
                 operator_stack_top++;
                 operator_stack[operator_stack_top] = *(expr_input+i);
             }
