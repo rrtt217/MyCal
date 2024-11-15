@@ -117,10 +117,12 @@ char function_wrapper(char* function_identifier)
         return 0;
 }
 
-double expr_parse(char *expr_input,double x)
+double expr_parse(char *expr_input,int expr_length,double x)
 {
-    char operator_stack[sizeof(expr_input)] = {'\0'};
-    StackItem generic_stack[sizeof(expr_input)] = {empty_item};
+    char operator_stack[expr_length];
+    memset(operator_stack,0,expr_length);
+    StackItem generic_stack[expr_length];
+    memset(generic_stack,0,expr_length*sizeof(StackItem));
     int operator_stack_top = -1;
     int generic_stack_top = -1;
 
@@ -133,7 +135,7 @@ double expr_parse(char *expr_input,double x)
     int function_brackets = 0;
     char number_str[128] = {'\0'};
     //Too long operand is not supported.
-    for(i = 0;i < sizeof(expr_input); i++)
+    for(i = 0;i < expr_length; i++)
     {
         if(i) 
             prev_char = *(expr_input+i-1);
@@ -156,13 +158,13 @@ double expr_parse(char *expr_input,double x)
             {
                 switch (*(expr_input+i))
                 {
-                case 0 ... 9:   case '.':   case 'E'    :case 'e':
-                    number_str[0] = *(expr_input+i);
+                case '0' ... '9':   case '.':   case 'E'    :case 'e':
+                    number_str[i-prev_i] = *(expr_input+i);
                     break;
                 case '+':   case '-':
-                    if(is_num(*(expr_input+i+1)))
+                    if(i>0 && *(expr_input+i-1) == 'e' || *(expr_input+i-1) == 'E')
                     {
-                            number_str[0] = *(expr_input+i);
+                            number_str[i-prev_i] = *(expr_input+i);
                     }
                     else
                     {
@@ -171,7 +173,7 @@ double expr_parse(char *expr_input,double x)
                     }
                     break;
                 default:
-                    //i--;
+                    i--;
                     goto end_of_loop1;
                     break;
                 }
@@ -181,6 +183,7 @@ double expr_parse(char *expr_input,double x)
             temp_item.numPart = atof(number_str);
             generic_stack_top++;
             generic_stack[generic_stack_top] = temp_item;
+            memset(number_str,0,sizeof(number_str));
             break;
 
         //operators
@@ -212,7 +215,9 @@ double expr_parse(char *expr_input,double x)
                     operator_stack_top--;
                     generic_stack_top++;
                     generic_stack[generic_stack_top] = temp_item;
-                } while ( operator_stack_top == -1 || operator_precedence(operator_stack[(operator_stack_top >= 0)? operator_stack_top : 0]) < operator_precedence(*(expr_input+i)));
+                } while ( operator_stack_top != -1 || operator_precedence(operator_stack[operator_stack_top]) >= operator_precedence(*(expr_input+i)));
+                operator_stack_top++;
+                operator_stack[operator_stack_top] = *(expr_input+i);
             }
         break;
         //functions
@@ -288,10 +293,12 @@ double expr_parse(char *expr_input,double x)
         generic_stack_top++;
         generic_stack[generic_stack_top] = temp_item;
     }
-        StackItem calculation_stack[sizeof(expr_input)] = {empty_item};
+        StackItem calculation_stack[expr_length];
+        memset(calculation_stack,0,expr_length*sizeof(StackItem));
         int calculation_stack_top = -1;
         for(i = 0;!(is_empty(generic_stack[i]));i++)
         {
+
             if(generic_stack[i].isNum)
             {
                 calculation_stack_top++;
@@ -331,6 +338,10 @@ double expr_parse(char *expr_input,double x)
                     default:
                         break;
                     }
+                }
+                else if(generic_stack[i].operatorPart = 0)
+                {
+                    ;
                 }
                 else
                 {
