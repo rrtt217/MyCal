@@ -203,6 +203,9 @@ double expr_parse(char *expr_input,int expr_length,double x)
     int function_i;
     int function_brackets = 0;
     char number_str[128] = {'\0'};
+    char function_stack[expr_length];
+    int function_stack_top = -1;
+    memset(function_stack,0,expr_length);
     //Too long operand is not supported.
     for(i = 0;i < expr_length; i++)
     {
@@ -215,8 +218,19 @@ double expr_parse(char *expr_input,int expr_length,double x)
         case '(':
             operator_stack_top++;
             operator_stack[operator_stack_top] = *(expr_input+i);
-            if(function_i == -1)
-                function_brackets++;
+            //no identifier
+            if(function_identifier[0] == '\0')
+            {
+                function_stack_top++;
+                function_stack[function_stack_top] = '\0';
+            }
+            //has identifier
+            else
+            {
+                function_stack_top++;
+                function_stack[function_stack_top] = function_wrapper(function_identifier);
+                memset(function_identifier,0,7);
+            }
             break;
 
         //numbers
@@ -291,6 +305,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
         break;
         //functions
         case 'a' ... 'z':
+        //x is the variable
             if(*(expr_input+i) == 'x')
             {
                 temp_item.isNum = 1;
@@ -299,22 +314,14 @@ double expr_parse(char *expr_input,int expr_length,double x)
                 generic_stack[generic_stack_top] = temp_item;
                 break;
             }
-        if(function_i == -1)
-        {
-            //Empty the string after last search.
-            for(function_i=0;function_i<7;function_i++)
-            {
-                function_identifier[function_i] = '\0';
-            }  
-        }
-            function_i=0;
+            //read function identifier
             do
             {
                 function_identifier[function_i] = *(expr_input+i);
                 function_i++;
                 i++;
             } while (is_lowercase_alpha(*(expr_input+i)));
-            function_i=-1;  //This represents "start searching for matched brackets".
+            function_i=0;
             i--;
             break;
 
@@ -330,15 +337,12 @@ double expr_parse(char *expr_input,int expr_length,double x)
             }
             operator_stack[operator_stack_top] = '\0';
             operator_stack_top--;
-            if(function_i == -1)
-                function_brackets--;
-            if(function_brackets == 0)
-                {
-                    temp_item.isNum = 0;
-                    temp_item.operatorPart = function_wrapper(function_identifier);
-                    generic_stack_top++;
-                    generic_stack[generic_stack_top] = temp_item;
-                }
+            temp_item.isNum = 0;
+            temp_item.operatorPart = function_stack[function_stack_top];
+            generic_stack_top++;
+            generic_stack[generic_stack_top] = temp_item;
+            function_stack[function_stack_top] = '\0';
+            function_stack_top--;
             break;
         case '\0':
             goto end_of_loop2;
