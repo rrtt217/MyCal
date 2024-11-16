@@ -196,21 +196,27 @@ double expr_parse(char *expr_input,int expr_length,double x)
     //temp / loop variables
     StackItem temp_item;
     int i,j,prev_i;
-    char prev_char = '\0';
+    char prev_char = '\0',next_char = '\0';
 
     //function-related variables
     char function_identifier[7] = {'\0'};
-    int function_i;
+    int function_i = 0;
     int function_brackets = 0;
     char number_str[128] = {'\0'};
     char function_stack[expr_length];
     int function_stack_top = -1;
     memset(function_stack,0,expr_length);
+
+    //sign(+/-)related variables
+    char sign_operator = '\0';
+
     //Too long operand is not supported.
     for(i = 0;i < expr_length; i++)
     {
         if(i) 
             prev_char = *(expr_input+i-1);
+        if(expr_length-1-i)
+            next_char = *(expr_input+i+1);
         // Warning: The following sentence use 'case low ... high:',which is a C Extension.
         switch (*(expr_input+i))
         {
@@ -267,14 +273,27 @@ double expr_parse(char *expr_input,int expr_length,double x)
             generic_stack_top++;
             generic_stack[generic_stack_top] = temp_item;
             memset(number_str,0,sizeof(number_str));
+            if(sign_operator)
+            {
+                temp_item.isNum = 0;
+                temp_item.operatorPart = (sign_operator == '+') ? -27 : -28;
+                generic_stack_top++;
+                generic_stack[generic_stack_top] = temp_item;
+                sign_operator = 0;
+            }
             break;
 
         //operators
         case '+':   case '-':
-            if(prev_char == '(' || is_operator(prev_char))
+            if(prev_char == '\(' || is_operator(prev_char) || !i)
             {
-                temp_item.isNum = 0;
-                temp_item.operatorPart = (*(expr_input+i) == '+') ? -27 : -28;
+                if(next_char == '\(')
+                {
+                    function_stack_top++;
+                    function_stack[function_stack_top] = (*(expr_input+i) == '+') ? -27 : -28;                    
+                }
+                else
+                    sign_operator = *(expr_input+i);
                 break;
             }
         case '*':   case '/':   case '^':
