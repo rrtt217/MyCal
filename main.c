@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include "exprparser.h"
 #include "keyboard.h"
+#ifdef _WIN32
+#include <Windows.h>
+#define sleep(sec)   Sleep(sec * 1000)
+#endif
 int main()
 {
     char input_expression[128] = {"\0"};
@@ -12,11 +16,23 @@ int main()
         c = key_pressed();
         if(c)
         {
-            input_expression[head] = c;
-            head++;
-            system("clear");
-            printf("Input:%s\n\033[J",input_expression);
-            printf("Output:%F",expr_parse(input_expression,128,x));
+            switch(c)
+            {
+                case '0' ... '9':
+                case 'a' ... 'z':
+                case '+': case '-': case '*': case '/': case '^':
+                case '(': case ')':
+                    input_expression[head] = c;
+                    head++;
+                    break;
+                default:
+                    printf("\007");
+                    break;
+            }
+
+            printf("\033[2J\033[H");
+            printf("Input:%s\n",input_expression);
+            printf("Output:%.9g\n",expr_parse(input_expression,128,x));
         }
         sleep(0.005);
     }
