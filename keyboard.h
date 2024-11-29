@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <termios.h>
-//Return the keys being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
+//Return the key being pressed immediately.Return 0 if failed, and some keys may be interpreted as multiple chars.
 char key_pressed(void)
 {
      //disable buffer
@@ -46,6 +46,7 @@ char key_pressed(void)
      }
 
 }
+//On linux it should be used before key_pressed_fast().On Windows it is just a dummy function.
 void begin_read_key(void)
 {
      //disable buffer
@@ -59,6 +60,7 @@ void begin_read_key(void)
      fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
 }
+//On linux it should be used after key_pressed_fast().On Windows it is just a dummy function.
 void end_read_key(void)
 {
      struct termios t;
@@ -72,9 +74,10 @@ void end_read_key(void)
      flags &= ~O_NONBLOCK;
      fcntl(STDIN_FILENO, F_SETFL, flags);
 }
+//A faster function to read keys by not change terminal setting every time it is called.Use it with begin_read_key() and end_read_key().
 char key_pressed_fast(void)
 {
-          //read and return
+     //read and return
      char c;
      int return_status = read(STDIN_FILENO, &c, 1);
      if(return_status > 0)
@@ -89,7 +92,7 @@ char key_pressed_fast(void)
 }
 #elif defined _WIN32
 #include <conio.h>
-//Return the keys being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
+//Return the key being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
 char key_pressed(void)
 {
      if(kbhit())
@@ -97,7 +100,7 @@ char key_pressed(void)
      else
           return 0;
 }
-//Return the keys being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
+//Return the key being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
 char key_pressed_fast(void)
 {
      return key_pressed();
