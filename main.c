@@ -8,7 +8,6 @@
 int main()
 {
     char input_expression[128] = {"\0"};
-    int refresh_count = 0;
     int x = 1;
     int top = -1;
     char c = 0;
@@ -46,18 +45,23 @@ int main()
                     printf("\007");
                     break;
             }
-            refresh_count = 10;
-        }
-        else
-            refresh_count++;
-        if(refresh_count == 10)
-        {
             printf("\033[2J\033[H");
             printf("Input:%s\n",input_expression);
             printf("Output:%.9g\n",expr_parse(input_expression,128,x));
-            refresh_count = 0;
+            printf("Error:%d\n",errno);
+            if(errno > 1024 && errno)
+            {
+                if(errno-1024 == '(')
+                    puts("Error:Unmatched or unclosed brackets");
+                else
+                    printf("Error:Unexpected symbol \"%c\"\n",errno-1024);
+            }
+        else if(errno)
+        {
+            perror("Error");
         }
-
+        errno = 0;
+    }
     }
     end_read_key();
 }

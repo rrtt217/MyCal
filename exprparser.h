@@ -437,7 +437,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         } 
                         else
                         {
-                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart);
+                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart);
                             return nan("0");
                         }
                         break;
@@ -450,7 +450,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         } 
                         else
                         {
-                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart);
+                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart);
                             return nan("0");
                         }
                         break;
@@ -463,7 +463,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         } 
                         else
                         {
-                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart);
+                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart);
                             return nan("0");
                         }
                         break;
@@ -476,7 +476,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         } 
                         else
                         {
-                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart);
+                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart);
                             return nan("0");
                         }
                         break;
@@ -489,7 +489,7 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         } 
                         else
                         {
-                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart);
+                            errno = (calculation_stack[calculation_stack_top-1].isNum) ? (ESYNTAX_BASE+calculation_stack[calculation_stack_top].operatorPart):(ESYNTAX_BASE+calculation_stack[calculation_stack_top-1].operatorPart);
                             return nan("0");
                         }
                         break;        

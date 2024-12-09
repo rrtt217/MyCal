@@ -79,6 +79,7 @@ char key_pressed_fast(void)
 {
      //read and return
      char c;
+     int errno_before = errno;
      int return_status = read(STDIN_FILENO, &c, 1);
      if(return_status > 0)
      {
@@ -87,6 +88,7 @@ char key_pressed_fast(void)
      else if(return_status == -1)
      {
      //no key was pressed.
+          errno = errno_before;
           return 0;          
      }
 }
