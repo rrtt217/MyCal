@@ -136,10 +136,14 @@ int main()
                 else
                     printf("Error:Unexpected symbol \"%c\"\n",errno-1024);
             }
-        else if(errno != 0)
-        {
-            perror("Error");
-        }
+            else if(errno == 1024)
+            {
+                printf("Error:Undefined syntax error\n");
+            }
+            else if(errno != 0)
+            {
+                perror("Error");
+            }
         errno = 0;
     }
     }
