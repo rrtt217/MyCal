@@ -92,6 +92,21 @@ char key_pressed_fast(void)
           return 0;          
      }
 }
+#include <sys/select.h>
+#include <sys/time.h>
+int kbhit()
+{
+     struct timeval tv;
+     fd_set readfds;
+     
+     //wait for 1ms
+     tv.tv_sec = 0;
+     tv.tv_usec = 0;    
+
+     FD_ZERO(&readfds);
+     FD_SET(STDIN_FILENO, &readfds); 
+     return select(STDIN_FILENO + 1, &readfds, NULL, NULL, &tv);
+}
 #elif defined _WIN32
 #include <conio.h>
 //Return the key being pressed.Return 0 if failed, and some keys may be interpreted as multiple chars.
@@ -107,8 +122,10 @@ char key_pressed_fast(void)
 {
      return key_pressed();
 }
+//On linux it should be used before key_pressed_fast().On Windows it is just a dummy function.
 void begin_read_key(void)
 {}
+//On linux it should be used after key_pressed_fast().On Windows it is just a dummy function.
 void end_read_key(void)
 {}
 #endif
