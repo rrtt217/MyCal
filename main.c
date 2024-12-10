@@ -21,6 +21,7 @@ int main()
         c = key_pressed_fast();
         if(c)
         {
+            putchar(c);
             switch(c)
             {
                 //common numbers & symbols
@@ -28,7 +29,6 @@ int main()
                 case 'a' ... 'z':
                 case '+': case '-': case '*': case '/': case '^':
                 case '(': case ')':
-                    
                     if(top >= 0 && top < 128)
                     {
                         if(cursor_pos != top)
@@ -50,11 +50,26 @@ int main()
                         cursor_pos++;                        
                     }
                     break;
-                
-                //ESC and control sequence
                 case 27:
                     if(!kbhit())
                         flag_end_loop = 0;
+                #ifdef _WIN32
+                    break;
+                case (char)224:
+                    switch (key_pressed_fast())
+                    {
+                    case 75:
+                        cursor_pos--;
+                        break;
+                    case 77:
+                        cursor_pos++;
+                        break;
+                    default:
+                        break;
+                    }
+                    break;
+                #elif defined __linux__
+                //ESC and control sequence
                     else
                     {
                         if(key_pressed_fast() == '[')
@@ -76,6 +91,7 @@ int main()
 
                     }
                     break;
+                #endif
                 //backspace
                 case 8:    case 127:    case '\\':
                 if(cursor_pos == -1)
