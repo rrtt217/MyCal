@@ -164,13 +164,15 @@ void simple_calculator()
     end_read_key();
 }
 
-#define X_HALFWIDTH 84
+#define X_HALFWIDTH 168
 #define Y_HALFWIDTH 40
 #define X_EXTRASCALE 1.8
 #define SEARCH_TIMES 5
 void graphical_calculator()
 {
     char expression[MAX_EXPR_SIZE] = {'\0'};
+    char line_buf[12*(2*X_HALFWIDTH+1)] = {'\0'};
+    int line_buf_top = -1;
     printf("Input expression to draw:");
     scanf("%127s", expression);
     double center_x = 0, center_y = 0, scale = 0.1;
@@ -306,17 +308,35 @@ void graphical_calculator()
                 for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
                 {
                     if (scry == y_axis_pos && scrx == x_axis_pos)
-                        putchar('+');
+                    {
+                        line_buf[line_buf_top+1] = '+';
+                        line_buf_top++;
+                    }
                     else if (scry == y_axis_pos)
-                        putchar('=');
+                    {
+                        line_buf[line_buf_top+1] = '=';
+                        line_buf_top++;
+                    }
                     else if (scrx == x_axis_pos)
-                        putchar('|');
+                    {
+                        line_buf[line_buf_top+1] = '|';
+                        line_buf_top++;
+                    }
                     else if (min_values[scrx + X_HALFWIDTH] <= scry && scry <= max_values[scrx + X_HALFWIDTH])
-                        printf("\033[47m \033[49m");
+                    {
+                        strcpy(line_buf+line_buf_top+1,"\033[47m \033[49m");
+                        line_buf_top += 11;                        
+                    }
                     else
-                        putchar(' ');
+                    {
+                        line_buf[line_buf_top+1] = ' ';
+                        line_buf_top++;
+                    }
                 }
-                putchar('\n');
+                puts(line_buf);
+                memset(line_buf,0,12*(2*X_HALFWIDTH+1)*sizeof(char));
+                line_buf_top = -1;
+                //putchar('\n');
             }
             printf("\033[49m");
             printf("Time cost:%.9g", clock() - frame_start);
