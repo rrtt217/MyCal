@@ -189,6 +189,67 @@ double function_unwrapper(char wrapped_identifier,double function_operand)
     }
 }
 
+char* str_of_wrapped_function(char wrapped_identifier) 
+{ 
+    switch (wrapped_identifier) 
+    { 
+    case -1: 
+        return("abs"); 
+    case -2: 
+        return("exp"); 
+    case -3: 
+        return("ln"); 
+    case -4: 
+        return("lg"); 
+    case -5: 
+        return("sqrt"); 
+    case -6: 
+        return("cbrt"); 
+    case -7: 
+        return("sin"); 
+    case -8: 
+        return("cos"); 
+    case -9: 
+        return("tan"); 
+    case -10: 
+        return("asin"); 
+    case -11: 
+        return("acos"); 
+    case -12: 
+        return("atan"); 
+    case -13: 
+        return("sinh"); 
+    case -14: 
+        return("cosh"); 
+    case -15: 
+        return("tanh"); 
+    case -16: 
+        return("asinh"); 
+    case -17: 
+        return("acosh"); 
+    case -18: 
+        return("atanh"); 
+    case -19: 
+        return("erf"); 
+    case -20: 
+        return("erfc"); 
+    case -21: 
+        return("tgamma"); 
+    case -22: 
+        return("lgamma"); 
+    case -23: 
+        return("ceil"); 
+    case -24: 
+        return("floor"); 
+    case -25: 
+        return("trunc"); 
+    case -26: 
+        return("round"); 
+    default: 
+        return NULL; 
+    } 
+}
+
 double expr_parse(char *expr_input,int expr_length,double x)
 {
     //make the two stacks used to convert expression
@@ -290,6 +351,17 @@ double expr_parse(char *expr_input,int expr_length,double x)
                         goto end_of_loop1;
                     }
                     break;
+                case 'a' ... 'd': case 'f' ... 'z':
+                    if(operator_stack_top == -1)
+                    {
+                        operator_stack_top++;
+                        operator_stack[operator_stack_top] = '*';
+                    }
+                    else if(operator_precedence(operator_stack[operator_stack_top]) < operator_precedence('*'))
+                    {
+                        operator_stack_top++;
+                        operator_stack[operator_stack_top] = '*';
+                    }
                 default:
                     i--;
                     goto end_of_loop1;
@@ -370,7 +442,13 @@ double expr_parse(char *expr_input,int expr_length,double x)
                 function_identifier[function_i] = *(expr_input+i);
                 function_i++;
                 i++;
-            } while (is_lowercase_alpha(*(expr_input+i)));
+            } while (!(*(expr_input+i) == '\(' || *(expr_input+i) == '\0')); 
+            //no matched bracket 
+            if(*(expr_input+i) == '\0') 
+            { 
+                errno = 1024+function_wrapper(function_identifier); 
+                return nan("0");                 
+            }
             function_i=0;
             i--;
             break;
