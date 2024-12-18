@@ -172,90 +172,146 @@ void graphical_calculator()
 {
     char expression[MAX_EXPR_SIZE] = {'\0'};
     printf("Input expression to draw:");
-    scanf("%127s",expression);
-    double center_x = 0 , center_y = 0 , scale = 0.1;
-    int scrx,scry,i;
-    int x_axis_pos,y_axis_pos;
-    char render_frame = 0 , flag_loop = 1;
+    scanf("%127s", expression);
+    double center_x = 0, center_y = 0, scale = 0.1;
+    int scrx, scry, i;
+    int x_axis_pos, y_axis_pos;
+    char render_frame = 0, flag_loop = 1;
     char c;
-    int min_values[2*X_HALFWIDTH+1] , max_values[2*X_HALFWIDTH+1];
-    int min_value,max_value, now_value;
-    clock_t frame_start , frame_cost;
+    int min_values[2 * X_HALFWIDTH + 1], max_values[2 * X_HALFWIDTH + 1];
+    int min_value, max_value, now_value;
+    clock_t frame_start, frame_cost;
     printf("\033[2J\033[H");
-    while(flag_loop)
+    while (flag_loop)
     {
         frame_start = clock();
         begin_read_key();
         c = key_pressed_fast();
         switch (c)
         {
-            case 'w':
-                center_y += scale * Y_HALFWIDTH / 20.0;
-                render_frame = 1;
-                break;
-            case 's':
-                center_y -= scale * Y_HALFWIDTH / 20.0;
-                render_frame = 1;
-                break;
-            case 'a':
-                center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
-                render_frame = 1;
-                break;
-            case 'd':
-                center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
-                render_frame = 1;
-                break;
-            case 'z':
-                scale *= 0.9;
-                render_frame = 1;
-                break;
-            case 'm':
-                scale *= 1.1;
-                render_frame = 1;
-                break; 
-            case 27:
+        case 'w':
+            center_y += scale * Y_HALFWIDTH / 20.0;
+            render_frame = 1;
+            break;
+        case 's':
+            center_y -= scale * Y_HALFWIDTH / 20.0;
+            render_frame = 1;
+            break;
+        case 'a':
+            center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            render_frame = 1;
+            break;
+        case 'd':
+            center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            render_frame = 1;
+            break;
+        case 'z':
+            scale *= 0.9;
+            render_frame = 1;
+            break;
+        case 'm':
+            scale *= 1.1;
+            render_frame = 1;
+            break;
+        case 27:
+            if (!kbhit())
                 flag_loop = 0;
+#ifdef _WIN32
+            break;
+        case (char)224:
+            switch (key_pressed_fast())
+            {
+            case 72:
+            center_y += scale * Y_HALFWIDTH / 20.0;
+            render_frame = 1;
+                break;
+            case 80:
+            center_y -= scale * Y_HALFWIDTH / 20.0;
+            render_frame = 1;
+            break;
+            case 75:
+            center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            render_frame = 1;
+                break;
+            case 77:
+            center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            render_frame = 1;
                 break;
             default:
                 break;
+            }
+            break;
+#elif defined __linux__
+            // ESC and control sequence
+            else
+            {
+                if (key_pressed_fast() == '[')
+                {
+                    switch (key_pressed_fast())
+                    {
+                    case 'A':
+                        center_y += scale * Y_HALFWIDTH / 20.0;
+                        render_frame = 1;
+                        break;
+                    case 'B':
+                        center_y -= scale * Y_HALFWIDTH / 20.0;
+                        render_frame = 1;
+                        break;
+                    case 'C':
+                        center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+                        render_frame = 1;
+                        break;
+                    case 'D':
+                        center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+                        render_frame = 1;
+                        break;
+                    default:
+                        break;
+                    };
+                }
+            }
+            break;
+#endif
+        default:
+            break;
         }
         end_read_key();
-        if(render_frame)
+        if (render_frame)
         {
             render_frame = 0;
             printf("\033[H");
-            printf("Expression:%s   Scale:%.2g    x:%.9g   y:%.9g\n",expression,scale,center_x,center_y);
-            for(scrx = -X_HALFWIDTH;scrx <= X_HALFWIDTH;scrx++)
+            printf("Expression:%s   Scale:%.2g    x:%.9g   y:%.9g\n", expression, scale, center_x, center_y);
+            for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
             {
-                for(i = 0 ; i < SEARCH_TIMES ; i++)
+                for (i = 0; i < SEARCH_TIMES; i++)
                 {
-                    now_value = (int)((center_y - expr_parse(expression,128,((double)scrx / X_EXTRASCALE - 0.5 + (double)i / SEARCH_TIMES)*scale+center_x))/scale);
-                    if(i == 0)
-                        {
-                            min_value = now_value;
-                            max_value = now_value;
-                        }
-                    else if(now_value < min_value)
+                    now_value = (int)((center_y - expr_parse(expression, 128, ((double)scrx / X_EXTRASCALE - 0.5 + (double)i / SEARCH_TIMES) * scale + center_x)) / scale);
+                    if (i == 0)
+                    {
                         min_value = now_value;
-                    else if(now_value > max_value)
+                        max_value = now_value;
+                    }
+                    else if (now_value < min_value)
+                        min_value = now_value;
+                    else if (now_value > max_value)
                         max_value = now_value;
                 }
-                min_values[scrx+X_HALFWIDTH] = min_value;
-                max_values[scrx+X_HALFWIDTH] = max_value;
+                min_values[scrx + X_HALFWIDTH] = min_value;
+                max_values[scrx + X_HALFWIDTH] = max_value;
             }
             x_axis_pos = (int)(0.5 - center_x * X_EXTRASCALE / scale);
             y_axis_pos = (int)(0.5 + center_y / scale);
-            for(scry = -Y_HALFWIDTH;scry <= Y_HALFWIDTH;scry++)
+            for (scry = -Y_HALFWIDTH; scry <= Y_HALFWIDTH; scry++)
             {
-                for(scrx = -X_HALFWIDTH;scrx <= X_HALFWIDTH;scrx++)
+                for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
                 {
-                    if(scry == y_axis_pos && scrx == x_axis_pos)
+                    if (scry == y_axis_pos && scrx == x_axis_pos)
                         putchar('+');
-                    else if(scry == y_axis_pos)
+                    else if (scry == y_axis_pos)
                         putchar('=');
-                    else if(scrx == x_axis_pos)
+                    else if (scrx == x_axis_pos)
                         putchar('|');
-                    else if(min_values[scrx+X_HALFWIDTH] <= scry && scry <= max_values[scrx+X_HALFWIDTH])
+                    else if (min_values[scrx + X_HALFWIDTH] <= scry && scry <= max_values[scrx + X_HALFWIDTH])
                         printf("\033[47m \033[49m");
                     else
                         putchar(' ');
@@ -263,9 +319,9 @@ void graphical_calculator()
                 putchar('\n');
             }
             printf("\033[49m");
-            printf("Time cost:%.9g",clock()-frame_start);
-            memset(min_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
-            memset(max_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
+            printf("Time cost:%.9g", clock() - frame_start);
+            memset(min_values, 0, sizeof(int) * (2 * X_HALFWIDTH + 1));
+            memset(max_values, 0, sizeof(int) * (2 * X_HALFWIDTH + 1));
         }
     }
 }
@@ -322,18 +378,18 @@ int main()
         case (char)224:
             switch (key_pressed_fast())
             {
-            case 75:
+            case 72:
                 if (c1 == ' ')
                 {
                     c1 = '*';
                     c2 = ' ';
                 }
                 break;
-            case 77:
+            case 80:
                 if (c2 == ' ')
                 {
                     c2 = '*';
-                    __DECL_SIMD_coshf16 = ' ';
+                    c1 = ' ';
                 }
                 break;
             default:
