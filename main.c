@@ -6,7 +6,7 @@
 #define sleep(sec) Sleep(sec * 1000)
 #endif
 #include <time.h>
-
+#include <omp.h>
 #define MAX_EXPR_SIZE 128
 
 void simple_calculator()
@@ -174,15 +174,16 @@ void graphical_calculator()
     char line_buf[12*(2*X_HALFWIDTH+1)] = {'\0'};
     int line_buf_top = -1;
     printf("Input expression to draw:");
-    scanf("%127s", expression);
-    double center_x = 0, center_y = 0, scale = 0.1;
-    int scrx, scry, i;
-    int x_axis_pos, y_axis_pos;
-    char render_frame = 0, flag_loop = 1;
+    scanf("%127s",expression);
+    double center_x = 0 , center_y = 0 , scale = 0.1;
+    int scry;
+    //int scrx,scry,i;
+    int x_axis_pos,y_axis_pos;
+    char render_frame = 0 , flag_loop = 1;
     char c;
-    int min_values[2 * X_HALFWIDTH + 1], max_values[2 * X_HALFWIDTH + 1];
-    int min_value, max_value, now_value;
-    clock_t frame_start, frame_cost;
+    int min_values[2*X_HALFWIDTH+1] , max_values[2*X_HALFWIDTH+1] , now_values[2*X_HALFWIDTH+1];
+    int min_value,max_value, now_value;
+    clock_t frame_start , frame_cost;
     printf("\033[2J\033[H");
     while (flag_loop)
     {
@@ -282,28 +283,28 @@ void graphical_calculator()
         {
             render_frame = 0;
             printf("\033[H");
-            printf("Expression:%s   Scale:%.2g    x:%.9g   y:%.9g\n", expression, scale, center_x, center_y);
-            for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
+            printf("Expression:%s   Scale:%.2g    x:%.9g   y:%.9g\n",expression,scale,center_x,center_y);
+            #pragma omp parallel for
+            for(int scrx = -X_HALFWIDTH;scrx <= X_HALFWIDTH;scrx++)
             {
-                for (i = 0; i < SEARCH_TIMES; i++)
+                for(int i = 0 ; i < SEARCH_TIMES ; i++)
                 {
-                    now_value = (int)((center_y - expr_parse(expression, 128, ((double)scrx / X_EXTRASCALE - 0.5 + (double)i / SEARCH_TIMES) * scale + center_x)) / scale);
-                    if (i == 0)
-                    {
-                        min_value = now_value;
-                        max_value = now_value;
-                    }
-                    else if (now_value < min_value)
-                        min_value = now_value;
-                    else if (now_value > max_value)
-                        max_value = now_value;
+                    now_values[scrx+X_HALFWIDTH] = (int)((center_y - expr_parse(expression,128,((double)scrx / X_EXTRASCALE - 0.5 + (double)i / SEARCH_TIMES)*scale+center_x))/scale);
+                    if(i == 0)
+                        {
+                            min_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
+                            max_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
+                        }
+                    else if(now_values[scrx+X_HALFWIDTH] < min_values[scrx+X_HALFWIDTH])
+                        min_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
+                    else if(now_values[scrx+X_HALFWIDTH] > max_values[scrx+X_HALFWIDTH])
+                        max_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
                 }
-                min_values[scrx + X_HALFWIDTH] = min_value;
-                max_values[scrx + X_HALFWIDTH] = max_value;
             }
             x_axis_pos = (int)(0.5 - center_x * X_EXTRASCALE / scale);
             y_axis_pos = (int)(0.5 + center_y / scale);
-            for (scry = -Y_HALFWIDTH; scry <= Y_HALFWIDTH; scry++)
+            int scrx;
+            for(scry = -Y_HALFWIDTH;scry <= Y_HALFWIDTH;scry++)
             {
                 for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
                 {
@@ -339,9 +340,10 @@ void graphical_calculator()
                 //putchar('\n');
             }
             printf("\033[49m");
-            printf("Time cost:%.9g", clock() - frame_start);
-            memset(min_values, 0, sizeof(int) * (2 * X_HALFWIDTH + 1));
-            memset(max_values, 0, sizeof(int) * (2 * X_HALFWIDTH + 1));
+            printf("Time cost:%.9gs",((double)(clock()-frame_start))/CLOCKS_PER_SEC);
+            memset(min_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
+            memset(max_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
+            memset(now_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
         }
     }
 }
@@ -383,7 +385,7 @@ int main()
                 simple_calculator();
             }
 
-            else if (c2 = '*')
+            else if (c2 == '*')
             {
                 printf("\033[2J\033[H");
                 end_read_key();
