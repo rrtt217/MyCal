@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-linux:
 
     runs-on: ubuntu-latest
 
@@ -20,6 +20,36 @@ jobs:
     - name: upload artifact
       uses: actions/upload-artifact@v4.5.0
       with:
+        path: |
+          MyCalculator
+          MyCalculator-par
+          third-party-licenses/*
+          config.ini
+  build-windows:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Mingw-w64 and make via Chocolatey
+      shell: pwsh
+      run: |
+        choco install mingw make -y
+        RefreshEnv
+    - name: Verify GCC and make
+      run: |
+        where gcc
+        gcc --version
+        where make
+        make --version
+    - name: make
+      run: make MyCalculator
+    - name: make-par
+      run: make MyCalculator-par
+    - name: upload artifact
+      uses: actions/upload-artifact@v4.5.0
+      with:
+        name: archifact-windows
         path: |
           MyCalculator
           MyCalculator-par
