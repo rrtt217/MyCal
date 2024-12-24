@@ -35,6 +35,7 @@ jobs:
       shell: pwsh
       run: |
         choco install mingw make -y
+        Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
         RefreshEnv
     - name: Verify GCC and make
       run: |
