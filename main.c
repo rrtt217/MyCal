@@ -9,8 +9,7 @@
 #include <omp.h>
 #define MAX_EXPR_SIZE 128
 
-void simple_calculator()
-{
+void simple_calculator(){
     char input_expression[MAX_EXPR_SIZE] = {"\0"};
     int x = 1;
     int cursor_pos = -1;
@@ -347,8 +346,7 @@ void graphical_calculator()
         }
     }
 }
-int main()
-{
+int main(){
     char c1 = '*', c2 = ' ', c = '\0';
     char flag_loop = 1;
     while (flag_loop)
