@@ -1,5 +1,5 @@
 EXECUTABLE = MyCalculator
-SRCS = main.c exprparser.c
+SRCS = main.c exprparser.c ini.c
 OBJS = $(SRCS:.c=.o)
 OBJS_PAR = $(SRCS:.c=-par.o)
 CC = gcc

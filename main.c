@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "ini.h"
 #include "exprparser.h"
 #include "keyboard.h"
 #ifdef _WIN32
@@ -7,10 +8,39 @@
 #endif
 #include <time.h>
 #include <omp.h>
-#define MAX_EXPR_SIZE 128
 
-void simple_calculator(){
-    char input_expression[MAX_EXPR_SIZE] = {"\0"};
+typedef struct 
+{
+    int max_expr_size;
+    int x_half_width;
+    int y_half_width;
+    double x_extra_scale;
+    int search_times;
+}configuration;
+
+static int handler(void* user, const char* section, const char* name,
+                   const char* value)
+{
+    configuration* pconfig = (configuration*)user;
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    if(MATCH("General","max_expr_size"))
+        pconfig->max_expr_size = atoi(value);
+    else if(MATCH("Graphics","x_half_width"))
+        pconfig->x_half_width = atoi(value);
+    else if(MATCH("Graphics","y_half_width"))
+        pconfig->y_half_width = atoi(value);
+    else if(MATCH("Graphics","x_extra_scale"))
+        pconfig->x_extra_scale = atof(value);
+    else if(MATCH("Graphics","search_times"))
+        pconfig->search_times = atoi(value);
+    else
+        return 0;
+    return 1;
+}
+
+void simple_calculator(configuration config){
+    char input_expression[config.max_expr_size];
+    memset(input_expression,0,config.max_expr_size);
     int x = 1;
     int cursor_pos = -1;
     int top = -1;
@@ -37,7 +67,7 @@ void simple_calculator(){
             case '^':
             case '(':
             case ')':
-                if (top >= 0 && top < MAX_EXPR_SIZE)
+                if (top >= 0 && top < config.max_expr_size)
                 {
                     if (cursor_pos != top)
                     {
@@ -136,7 +166,7 @@ void simple_calculator(){
             if (cursor_pos >= top)
                 printf("\033[47m \033[0m");
             putchar('\n');
-            printf("Output:%.9g\n", expr_parse(input_expression, MAX_EXPR_SIZE, x));
+            printf("Output:%.9g\n", expr_parse(input_expression, config.max_expr_size, x));
             if (errno > 1024 && errno)
             {
                 if (errno - 1024 == '(')
@@ -148,7 +178,7 @@ void simple_calculator(){
             {
                 printf("Error:Undefined syntax error\n");
             }
-            else if (errno > 1024 - MAX_EXPR_SIZE)
+            else if (errno > 1024 - config.max_expr_size)
             {
                 if (str_of_wrapped_function(errno - 1024))
                     printf("Error:Function %s\() has no brackets matched\n", str_of_wrapped_function(errno - 1024));
@@ -163,14 +193,12 @@ void simple_calculator(){
     end_read_key();
 }
 
-#define X_HALFWIDTH 168
-#define Y_HALFWIDTH 40
-#define X_EXTRASCALE 1.8
-#define SEARCH_TIMES 5
-void graphical_calculator()
+void graphical_calculator(configuration config)
 {
-    char expression[MAX_EXPR_SIZE] = {'\0'};
-    char line_buf[12*(2*X_HALFWIDTH+1)] = {'\0'};
+    char expression[config.max_expr_size];
+    char line_buf[12*(2*config.x_half_width+1)];
+    memset(expression,0,config.max_expr_size);
+    memset(line_buf,0,12*(2*config.x_half_width+1));
     int line_buf_top = -1;
     printf("Input expression to draw:");
     scanf("%127s",expression);
@@ -180,7 +208,7 @@ void graphical_calculator()
     int x_axis_pos,y_axis_pos;
     char render_frame = 0 , flag_loop = 1;
     char c;
-    int min_values[2*X_HALFWIDTH+1] , max_values[2*X_HALFWIDTH+1] , now_values[2*X_HALFWIDTH+1];
+    int min_values[2*config.x_half_width+1] , max_values[2*config.x_half_width+1] , now_values[2*config.x_half_width+1];
     int min_value,max_value, now_value;
     clock_t frame_start , frame_cost;
     printf("\033[2J\033[H");
@@ -192,19 +220,19 @@ void graphical_calculator()
         switch (c)
         {
         case 'w':
-            center_y += scale * Y_HALFWIDTH / 20.0;
+            center_y += scale * config.y_half_width / 20.0;
             render_frame = 1;
             break;
         case 's':
-            center_y -= scale * Y_HALFWIDTH / 20.0;
+            center_y -= scale * config.y_half_width / 20.0;
             render_frame = 1;
             break;
         case 'a':
-            center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            center_x -= scale * config.x_half_width / 20.0 * config.x_extra_scale;
             render_frame = 1;
             break;
         case 'd':
-            center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            center_x += scale * config.x_half_width / 20.0 * config.x_extra_scale;
             render_frame = 1;
             break;
         case 'z':
@@ -224,19 +252,19 @@ void graphical_calculator()
             switch (key_pressed_fast())
             {
             case 72:
-            center_y += scale * Y_HALFWIDTH / 20.0;
+            center_y += scale * config.y_half_width / 20.0;
             render_frame = 1;
                 break;
             case 80:
-            center_y -= scale * Y_HALFWIDTH / 20.0;
+            center_y -= scale * config.y_half_width / 20.0;
             render_frame = 1;
             break;
             case 75:
-            center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            center_x -= scale * config.x_half_width / 20.0 * config.x_extra_scale;
             render_frame = 1;
                 break;
             case 77:
-            center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+            center_x += scale * config.x_half_width / 20.0 * config.x_extra_scale;
             render_frame = 1;
                 break;
             default:
@@ -252,19 +280,19 @@ void graphical_calculator()
                     switch (key_pressed_fast())
                     {
                     case 'A':
-                        center_y += scale * Y_HALFWIDTH / 20.0;
+                        center_y += scale * config.y_half_width / 20.0;
                         render_frame = 1;
                         break;
                     case 'B':
-                        center_y -= scale * Y_HALFWIDTH / 20.0;
+                        center_y -= scale * config.y_half_width / 20.0;
                         render_frame = 1;
                         break;
                     case 'C':
-                        center_x += scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+                        center_x += scale * config.x_half_width / 20.0 * config.x_extra_scale;
                         render_frame = 1;
                         break;
                     case 'D':
-                        center_x -= scale * X_HALFWIDTH / 20.0 * X_EXTRASCALE;
+                        center_x -= scale * config.x_half_width / 20.0 * config.x_extra_scale;
                         render_frame = 1;
                         break;
                     default:
@@ -284,28 +312,28 @@ void graphical_calculator()
             printf("\033[H");
             printf("Expression:%s   Scale:%.2g    x:%.9g   y:%.9g\n",expression,scale,center_x,center_y);
             #pragma omp parallel for
-            for(int scrx = -X_HALFWIDTH;scrx <= X_HALFWIDTH;scrx++)
+            for(int scrx = -config.x_half_width;scrx <= config.x_half_width;scrx++)
             {
-                for(int i = 0 ; i < SEARCH_TIMES ; i++)
+                for(int i = 0 ; i < config.search_times ; i++)
                 {
-                    now_values[scrx+X_HALFWIDTH] = (int)((center_y - expr_parse(expression,128,((double)scrx / X_EXTRASCALE - 0.5 + (double)i / SEARCH_TIMES)*scale+center_x))/scale);
+                    now_values[scrx+config.x_half_width] = (int)((center_y - expr_parse(expression,128,((double)scrx / config.x_extra_scale - 0.5 + (double)i / config.search_times)*scale+center_x))/scale);
                     if(i == 0)
                         {
-                            min_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
-                            max_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
+                            min_values[scrx+config.x_half_width] = now_values[scrx+config.x_half_width];
+                            max_values[scrx+config.x_half_width] = now_values[scrx+config.x_half_width];
                         }
-                    else if(now_values[scrx+X_HALFWIDTH] < min_values[scrx+X_HALFWIDTH])
-                        min_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
-                    else if(now_values[scrx+X_HALFWIDTH] > max_values[scrx+X_HALFWIDTH])
-                        max_values[scrx+X_HALFWIDTH] = now_values[scrx+X_HALFWIDTH];
+                    else if(now_values[scrx+config.x_half_width] < min_values[scrx+config.x_half_width])
+                        min_values[scrx+config.x_half_width] = now_values[scrx+config.x_half_width];
+                    else if(now_values[scrx+config.x_half_width] > max_values[scrx+config.x_half_width])
+                        max_values[scrx+config.x_half_width] = now_values[scrx+config.x_half_width];
                 }
             }
-            x_axis_pos = (int)(0.5 - center_x * X_EXTRASCALE / scale);
+            x_axis_pos = (int)(0.5 - center_x * config.x_extra_scale / scale);
             y_axis_pos = (int)(0.5 + center_y / scale);
             int scrx;
-            for(scry = -Y_HALFWIDTH;scry <= Y_HALFWIDTH;scry++)
+            for(scry = -config.y_half_width;scry <= config.y_half_width;scry++)
             {
-                for (scrx = -X_HALFWIDTH; scrx <= X_HALFWIDTH; scrx++)
+                for (scrx = -config.x_half_width; scrx <= config.x_half_width; scrx++)
                 {
                     if (scry == y_axis_pos && scrx == x_axis_pos)
                     {
@@ -322,7 +350,7 @@ void graphical_calculator()
                         line_buf[line_buf_top+1] = '|';
                         line_buf_top++;
                     }
-                    else if (min_values[scrx + X_HALFWIDTH] <= scry && scry <= max_values[scrx + X_HALFWIDTH])
+                    else if (min_values[scrx + config.x_half_width] <= scry && scry <= max_values[scrx + config.x_half_width])
                     {
                         strcpy(line_buf+line_buf_top+1,"\033[47m \033[49m");
                         line_buf_top += 11;                        
@@ -334,24 +362,39 @@ void graphical_calculator()
                     }
                 }
                 puts(line_buf);
-                memset(line_buf,0,12*(2*X_HALFWIDTH+1)*sizeof(char));
+                memset(line_buf,0,12*(2*config.x_half_width+1)*sizeof(char));
                 line_buf_top = -1;
                 //putchar('\n');
             }
             printf("\033[49m");
             printf("Time cost:%.9gs",((double)(clock()-frame_start))/CLOCKS_PER_SEC);
-            memset(min_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
-            memset(max_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
-            memset(now_values,0,sizeof(int)*(2*X_HALFWIDTH+1));
+            memset(min_values,0,sizeof(int)*(2*config.x_half_width+1));
+            memset(max_values,0,sizeof(int)*(2*config.x_half_width+1));
+            memset(now_values,0,sizeof(int)*(2*config.x_half_width+1));
         }
     }
 }
 int main(){
+    configuration config;
+    //default config
+    config.max_expr_size = 128;
+    config.x_half_width = 168;
+    config.y_half_width = 40;
+    config.x_extra_scale = 1.8;
+    config.search_times = 5;
+
+    if(ini_parse("config.ini",handler,&config) < 0)
+        printf("Failed to load config,use default");
+    else
+    {
+        printf("Successful to load config");
+    }
+
     char c1 = '*', c2 = ' ', c = '\0';
     char flag_loop = 1;
     while (flag_loop)
     {
-        sleep(0.005);
+        sleep(0.05);
         printf("\033[2J\033[H");
         printf("         Main Menu         \n");
         printf("%c1.simple calculator\n", c1);
@@ -380,14 +423,14 @@ int main(){
             {
                 printf("\033[2J\033[H");
                 end_read_key();
-                simple_calculator();
+                simple_calculator(config);
             }
 
             else if (c2 == '*')
             {
                 printf("\033[2J\033[H");
                 end_read_key();
-                graphical_calculator();
+                graphical_calculator(config);
             }
             break;
         case 27:
