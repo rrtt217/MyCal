@@ -1,3 +1,3 @@
 # MyCal
-(Reference:csdn)
-An attempt to 
+
+A beginner's attempt to implement a simple calculator on multiple platforms.
