@@ -7,13 +7,13 @@ CFLAGS =
 LDFLAGS = -lm
 
 $(EXECUTABLE): $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC)  -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(EXECUTABLE)-par: $(OBJS_PAR)
-	$(CC) $(LDFLAGS) -fopenmp -o $@ $^
+	$(CC)  -fopenmp -o $@ $^ $(LDFLAGS)
 
 %-par.o: %.c
 	$(CC) $(CFLAGS) -fopenmp -c -o $@ $<
