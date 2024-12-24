@@ -52,7 +52,7 @@ jobs:
       with:
         name: archifact-windows
         path: |
-          MyCalculator
-          MyCalculator-par
+          MyCalculator.exe
+          MyCalculator-par.exe
           third-party-licenses/*
           config.ini
