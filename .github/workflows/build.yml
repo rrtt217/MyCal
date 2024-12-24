@@ -21,6 +21,6 @@ jobs:
       uses: actions/upload-artifact@v4.5.0
       with:
         path: |
-          output/
-          third-party-licenses/
+          output/*
+          third-party-licenses/*
           config.ini
