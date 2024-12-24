@@ -21,6 +21,7 @@ jobs:
       uses: actions/upload-artifact@v4.5.0
       with:
         path: |
-          output/*
+          MyCalculator
+          MyCalculator-par
           third-party-licenses/*
           config.ini
