@@ -59,59 +59,59 @@ int is_empty(StackItem item)
 char function_wrapper(char* function_identifier)
 {
     if(!strcmp(function_identifier,"abs"))
-        return -1;
+        return (char)-1;
     else if(!strcmp(function_identifier,"exp"))
-        return -2;
+        return (char)-2;
     else if(!strcmp(function_identifier,"ln"))
-        return -3;
+        return (char)-3;
     else if(!strcmp(function_identifier,"lg"))
-        return -4;
+        return (char)4;
     else if(!strcmp(function_identifier,"sqrt"))
-        return -5;
+        return (char)-5;
     else if(!strcmp(function_identifier,"cbrt"))
-        return -6;
+        return (char)-6;
     else if(!strcmp(function_identifier,"sin"))
-        return -7;
+        return (char)-7;
     else if(!strcmp(function_identifier,"cos"))
-        return -8;
+        return (char)-8;
     else if(!strcmp(function_identifier,"tan"))
-        return -9;
+        return (char)-9;
     else if(!strcmp(function_identifier,"asin"))
-        return -10;
+        return (char)-10;
     else if(!strcmp(function_identifier,"acos"))
-        return -11;
+        return (char)-11;
     else if(!strcmp(function_identifier,"atan"))
-        return -12;
+        return (char)-12;
     else if(!strcmp(function_identifier,"sinh"))
-        return -13;
+        return (char)-13;
     else if(!strcmp(function_identifier,"cosh"))
-        return -14;
+        return (char)-14;
     else if(!strcmp(function_identifier,"tanh"))
-        return -15;
+        return (char)-15;
     else if(!strcmp(function_identifier,"asinh"))
-        return -16;
+        return (char)-16;
     else if(!strcmp(function_identifier,"acosh"))
-        return -17;
+        return (char)-17;
     else if(!strcmp(function_identifier,"atanh"))
-        return -18;
+        return (char)-18;
     else if(!strcmp(function_identifier,"erf"))
-        return -19;
+        return (char)-19;
     else if(!strcmp(function_identifier,"erfc"))
-        return -20;
+        return (char)-20;
     else if(!strcmp(function_identifier,"tgamma"))
-        return -21;
+        return (char)-21;
     else if(!strcmp(function_identifier,"lgamma"))
-        return -22;
+        return (char)-22;
     else if(!strcmp(function_identifier,"ceil"))
-        return -23;
+        return (char)-23;
     else if(!strcmp(function_identifier,"floor"))
-        return -24;
+        return (char)-24;
     else if(!strcmp(function_identifier,"trunc"))
-        return -25;
+        return (char)-25;
     else if(!strcmp(function_identifier,"round"))
-        return -26;
+        return (char)-26;
     else
-        return 0;
+        return (char)0;
 }
 
 //convert the special chars back to the function to calculate
@@ -119,61 +119,61 @@ double function_unwrapper(char wrapped_identifier,double function_operand)
 {
     switch (wrapped_identifier)
     {
-    case -1:
+    case (char)-1:
         return fabs(function_operand);
-    case -2:
+    case (char)-2:
         return exp(function_operand);
-    case -3:
+    case (char)-3:
         return log(function_operand);
-    case -4:
+    case (char)-4:
         return log10(function_operand);
-    case -5:
+    case (char)-5:
         return sqrt(function_operand);
-    case -6:
+    case (char)-6:
         return cbrt(function_operand);
-    case -7:
+    case (char)-7:
         return sin(function_operand);
-    case -8:
+    case (char)-8:
         return cos(function_operand);
-    case -9:
+    case (char)-9:
         return tan(function_operand);
-    case -10:
+    case (char)-10:
         return asin(function_operand);
-    case -11:
+    case (char)-11:
         return acos(function_operand);
-    case -12:
+    case (char)-12:
         return atan(function_operand);
-    case -13:
+    case (char)-13:
         return sinh(function_operand);
-    case -14:
+    case (char)-14:
         return cosh(function_operand);
-    case -15:
+    case (char)-15:
         return tanh(function_operand);
-    case -16:
+    case (char)-16:
         return asinh(function_operand);
-    case -17:
+    case (char)-17:
         return acosh(function_operand);
-    case -18:
+    case (char)-18:
         return atanh(function_operand);
-    case -19:
+    case (char)-19:
         return erf(function_operand);
-    case -20:
+    case (char)-20:
         return erfc(function_operand);
-    case -21:
+    case (char)-21:
         return tgamma(function_operand);
-    case -22:
+    case (char)-22:
         return lgamma(function_operand);
-    case -23:
+    case (char)-23:
         return ceil(function_operand);
-    case -24:
+    case (char)-24:
         return floor(function_operand);
-    case -25:
+    case (char)-25:
         return trunc(function_operand);
-    case -26:
+    case (char)-26:
         return round(function_operand);
-    case -27:
+    case (char)-27:
         return function_operand;
-    case -28:
+    case (char)-28:
         return -function_operand;
     default:
         return function_operand;
@@ -184,57 +184,57 @@ char* str_of_wrapped_function(char wrapped_identifier)
 { 
     switch (wrapped_identifier) 
     { 
-    case -1: 
+    case (char)-1: 
         return("abs"); 
-    case -2: 
+    case (char)-2: 
         return("exp"); 
-    case -3: 
+    case (char)-3: 
         return("ln"); 
-    case -4: 
+    case (char)-4: 
         return("lg"); 
-    case -5: 
+    case (char)-5: 
         return("sqrt"); 
-    case -6: 
+    case (char)-6: 
         return("cbrt"); 
-    case -7: 
+    case (char)-7: 
         return("sin"); 
-    case -8: 
+    case (char)-8: 
         return("cos"); 
-    case -9: 
+    case (char)-9: 
         return("tan"); 
-    case -10: 
+    case (char)-10: 
         return("asin"); 
-    case -11: 
+    case (char)-11: 
         return("acos"); 
-    case -12: 
+    case (char)-12: 
         return("atan"); 
-    case -13: 
+    case (char)-13: 
         return("sinh"); 
-    case -14: 
+    case (char)-14: 
         return("cosh"); 
-    case -15: 
+    case (char)-15: 
         return("tanh"); 
-    case -16: 
+    case (char)-16: 
         return("asinh"); 
-    case -17: 
+    case (char)-17: 
         return("acosh"); 
-    case -18: 
+    case (char)-18: 
         return("atanh"); 
-    case -19: 
+    case (char)-19: 
         return("erf"); 
-    case -20: 
+    case (char)-20: 
         return("erfc"); 
-    case -21: 
+    case (char)-21: 
         return("tgamma"); 
-    case -22: 
+    case (char)-22: 
         return("lgamma"); 
-    case -23: 
+    case (char)-23: 
         return("ceil"); 
-    case -24: 
+    case (char)-24: 
         return("floor"); 
-    case -25: 
+    case (char)-25: 
         return("trunc"); 
-    case -26: 
+    case (char)-26: 
         return("round"); 
     default: 
         return NULL; 
